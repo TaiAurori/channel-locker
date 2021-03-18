@@ -1,7 +1,0 @@
-{
-  "name": "Channel Locker",
-  "version": "1.0.0",
-  "description": "Stops you from sending a message in specific channels by locking the chatbox.",
-  "author": "TaiAurori#6781",
-  "license": "MIT"
-}
