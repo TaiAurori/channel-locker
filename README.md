@@ -1,5 +1,5 @@
-# custom-timestamps
-A Powercord (or Vizality) plugin that displays custom timestamps on messages.
+# channel-locker
+Lock channels you want to lurk in.
 
 Either go to #plugin-support in the Powercord Discord server (when using on Powercord) or join my Discord server for support. 
 
