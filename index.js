@@ -63,30 +63,32 @@ const plugin = class ChannelLocker extends Plugin {
       (m) => m.type && m.type.render && m.type.render.displayName === "ChannelTextAreaContainer", false
     );
     inject("channel-locker-header-button", HeaderBarContainer.prototype, "render", (args, res) => {
-      if (!res.props.toolbar) {
-        res.props.toolbar = React.createElement(React.Fragment, { children: [] });
+      if (res.props.children[1].key) {
+	      if (!res.props.toolbar) {
+	        res.props.toolbar = React.createElement(React.Fragment, { children: [] });
+	      }
+	      let isLocked = settings.get("lockedChannels", {})[res.props.children[1].key];
+	      res.props.toolbar.props.children.push(
+	        React.createElement(HeaderBarContainer.Icon, {
+	          onClick: () => this.toggleLockedGlobal(),
+	          icon: () => React.createElement(Icon, {
+	            className: classes.icon,
+	            name: 'LockClosed',
+	          }),
+	          tooltip: "Toggle Global Lock"
+	        }),
+	      )
+	      res.props.toolbar.props.children.push(
+	        React.createElement(HeaderBarContainer.Icon, {
+	          onClick: () => this.toggleLocked(res.props.children[1].key),
+	          icon: () => React.createElement(Icon, {
+	            className: classes.icon,
+	            name: 'ChannelText',
+	          }),
+	          tooltip: "Toggle Channel Lock"
+	        }),
+	      )
       }
-      let isLocked = settings.get("lockedChannels", {})[res.props.children[1].key];
-      res.props.toolbar.props.children.push(
-        React.createElement(HeaderBarContainer.Icon, {
-          onClick: () => this.toggleLockedGlobal(),
-          icon: () => React.createElement(Icon, {
-            className: classes.icon,
-            name: 'LockClosed',
-          }),
-          tooltip: "Toggle Global Lock"
-        }),
-      )
-      res.props.toolbar.props.children.push(
-        React.createElement(HeaderBarContainer.Icon, {
-          onClick: () => this.toggleLocked(res.props.children[1].key),
-          icon: () => React.createElement(Icon, {
-            className: classes.icon,
-            name: 'ChannelText',
-          }),
-          tooltip: "Toggle Channel Lock"
-        }),
-      )
       return res;
     });
     inject("channel-locker-text-area", TextAreaContainer.type, "render", (args, res) => {
