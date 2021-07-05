@@ -15,6 +15,7 @@ const { getModule, getModuleByDisplayName, React } = req('webpack');
 const { inject, uninject } = req('injector');
 const { Icon } = req("components");
 var rerenderTextarea;
+var toggleLocked;
 var toggleLockedGlobal;
 
 class TextareaWrapper extends React.Component {
@@ -26,21 +27,31 @@ class TextareaWrapper extends React.Component {
     rerenderTextarea = (() => {this.setState({})}).bind(this)
   }
   render() {
-    if (settings.get("lockedChannels", {})[this.props.args[0].channel.id]) {
+  	if (settings.get("lockedGlobal", false)) {
       return React.createElement(
         textareaNotice,
-        { button: "Unlock", onClick: () => {toggleLockedGlobal(this.props.args[0].channel.id)} },
-        "You currently have this channel locked. Unlock this channel to speak in it."
-      );      
+        { button: "Unlock", onClick: () => {toggleLockedGlobal()} },
+        "You currently have the text area locked. Unlock it to speak."
+      );    
+  	} else {
+	    if (settings.get("lockedChannels", {})[this.props.args[0].channel.id]) {
+	      return React.createElement(
+	        textareaNotice,
+	        { button: "Unlock", onClick: () => {toggleLocked(this.props.args[0].channel.id)} },
+	        "You currently have this channel locked. Unlock this channel to speak in it."
+	      );      
+	    }
     }
     return this.props.textarea;
+    
   }
 }
 
 const plugin = class ChannelLocker extends Plugin {
   startPlugin() {
     settings = new MoldSettings(this);
-    toggleLockedGlobal = this.toggleLocked.bind(this);
+    toggleLocked = this.toggleLocked.bind(this);
+    toggleLockedGlobal = this.toggleLockedGlobal.bind(this);
     this.initInject();
   }
 
@@ -58,10 +69,20 @@ const plugin = class ChannelLocker extends Plugin {
       let isLocked = settings.get("lockedChannels", {})[res.props.children[1].key];
       res.props.toolbar.props.children.push(
         React.createElement(HeaderBarContainer.Icon, {
-          onClick: () => this.toggleLocked(res.props.children[1].key),
+          onClick: () => this.toggleLockedGlobal(),
           icon: () => React.createElement(Icon, {
             className: classes.icon,
             name: 'LockClosed',
+          }),
+          tooltip: "Toggle Global Lock"
+        }),
+      )
+      res.props.toolbar.props.children.push(
+        React.createElement(HeaderBarContainer.Icon, {
+          onClick: () => this.toggleLocked(res.props.children[1].key),
+          icon: () => React.createElement(Icon, {
+            className: classes.icon,
+            name: 'ChannelText',
           }),
           tooltip: "Toggle Channel Lock"
         }),
@@ -78,6 +99,12 @@ const plugin = class ChannelLocker extends Plugin {
     locked[channelId] = !locked[channelId];
     settings.set("lockedChannels", locked);
     rerenderTextarea();
+  }
+
+  toggleLockedGlobal() {
+    let locked = settings.get("lockedGlobal", false);
+    settings.set("lockedGlobal", !locked);
+    rerenderTextarea()
   }
 
   pluginWillUnload() {
