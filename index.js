@@ -6,14 +6,13 @@
  * but this copyright notice must remain unmodified.
  */
 
-const { MoldSettings, req } = require("./modules/moldit.js");
 var settings;
 
 const textareaNotice = require("./components/textareaNotice.jsx");
-const { Plugin } = req("entities");
-const { getModule, getModuleByDisplayName, React } = req('webpack');
-const { inject, uninject } = req('injector');
-const { Icon } = req("components");
+const { Plugin } = require("powercord/entities");
+const { getModule, getModuleByDisplayName, React } = require('powercord/webpack');
+const { inject, uninject } = require('powercord/injector');
+const { Icon } = require("powercord/components");
 var rerenderTextarea;
 var toggleLocked;
 var toggleLockedGlobal;
@@ -49,7 +48,7 @@ class TextareaWrapper extends React.Component {
 
 const plugin = class ChannelLocker extends Plugin {
   startPlugin() {
-    settings = new MoldSettings(this);
+    settings = this.settings
     toggleLocked = this.toggleLocked.bind(this);
     toggleLockedGlobal = this.toggleLockedGlobal.bind(this);
     this.initInject();
@@ -113,8 +112,5 @@ const plugin = class ChannelLocker extends Plugin {
     uninject("channel-locker-header-button");
     uninject("channel-locker-text-area");
   };
-
-  start() {this.startPlugin()}
-  stop() {this.pluginWillUnload()}
 };
 module.exports = plugin

@@ -1,5 +1,4 @@
-const { req } = require("../modules/moldit.js");
-const { React } = req('webpack');
+const { React } = require('powercord/webpack');
 
 module.exports = (props) => (
     <div className="wrapper-39oAo3">
